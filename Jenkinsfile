@@ -51,6 +51,14 @@ pipeline {
                 }
             }
         }
+        stage ('Functional Test') {
+            steps {
+                dir ('functional-test') {
+                    git credentialsId: 'github_credentials', url: 'https://github.com/gabruw/tasks-functional-test.git'
+                    bat 'mvn test'
+                }
+            }
+        }
     }
 }
 

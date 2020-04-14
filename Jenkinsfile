@@ -36,9 +36,18 @@ pipeline {
         }
         stage ('API Test') {
             steps {
-                dir('api-test') {
+                dir ('api-test') {
                     git credentialsId: 'github_credentials', url: 'https://github.com/gabruw/tasks-api-test.git'
                     bat 'mvn test'
+                }
+            }
+        }
+        stage ('Deploy Frontend') {
+            steps {
+                dir ('frontend') {
+                    git credentialsId: 'github_credentials', url: 'https://github.com/gabruw/tasks-frontend.git'
+                    bat 'mvn clean package -DskipTests=true'
+                    deploy adapters: [tomcat8(credentialsId: 'tomcat_credentials', path: '', url: 'http://localhost:8001/')], contextPath: 'tasks', war: 'target/tasks.war'
                 }
             }
         }

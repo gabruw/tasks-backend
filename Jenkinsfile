@@ -3,12 +3,18 @@ pipeline {
     stages {
         stage ('Build Backend') {
             steps {
-                bat 'mvn clean package -DskipTests=true'
+				dir ('backend') {
+                    git credentialsId: 'github_credentials', url: 'https://github.com/gabruw/tasks-backend.git'
+                    bat 'mvn clean package -DskipTests=true'
+                    deploy adapters: [tomcat8(credentialsId: 'tomcat_credentials', path: '', url: 'http://localhost:8080/')], contextPath: 'tasks', war: 'target/tasks.war'
+                }
             }
         }
         stage ('Unit Tests') {
             steps {
-                bat 'mvn test'
+				dir ('backend') {
+					bat 'mvn test'
+				}
             }
         }
         stage ('Sonar Analysis') {
@@ -31,7 +37,9 @@ pipeline {
         }
         stage ('Deploy Backend') {
             steps {
-                deploy adapters: [tomcat8(credentialsId: 'tomcat_credentials', path: '', url: 'http://localhost:8080/')], contextPath: 'tasks-backend', war: 'target/tasks-backend.war'
+				dir ('backend') {
+					deploy adapters: [tomcat8(credentialsId: 'tomcat_credentials', path: '', url: 'http://localhost:8080/')], contextPath: 'tasks-backend', war: 'target/tasks-backend.war'
+				}
             }
         }
         stage ('API Test') {
